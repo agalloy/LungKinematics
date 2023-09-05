@@ -1,0 +1,7 @@
+# Matlab .asv files
+*.asv
+
+# Local folder
+Local/
+# Everything in the Local folder
+Local/**
