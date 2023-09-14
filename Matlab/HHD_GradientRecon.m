@@ -14,25 +14,27 @@
 %   gamma = The harmonic component of the vector field. What's left over from
 %       the other two components. Translational component?
 
-function outStruct = HodgeDecompV2(FaceArray,NodeArray,X)
+function outStruct = HHD_GradientRecon(FaceArray,NodeArray,X)
 %% Quick settings
     % Boundary conditions to use
     % bc = 0: Potential is set to zero at a single boundary node 
     %   (Harmonic component is absorbed into exact component)
     % bc = 1: Potential is set to zero at all boundary nodes 
     %   (Harmonic component is orthogonal to exact and coexact components)
-    bc = 1;
+    bc = 0;
     
     % Display verification info
     verify = false;
 
 
-%% Assemble necessary geometry prerequisites    
+%% Assemble necessary geometry prerequisites
+    num_nodes = size(NodeArray,1);
+    num_faces = size(FaceArray,1);
+    
     DEC = AssembleDEC(FaceArray,NodeArray);
     EdgeArray = DEC.EdgeArray;
     EdgeLengths = DEC.EdgeLengths;
     EdgeDir = DEC.EdgeDir;
-    EdgeVec = EdgeLengths .* EdgeDir;
     b_nodes = DEC.b_nodes;
     b_edges = DEC.b_edges;
     b_orient = DEC.b_orient;
@@ -45,39 +47,19 @@ function outStruct = HodgeDecompV2(FaceArray,NodeArray,X)
     NodeFaceAreas = DEC.FaceNodeAreas';
     NodeFaceWeights = NodeFaceAreas ./ NodeAreas;
     
-    num_nodes = size(NodeArray,1);
-    num_edges = size(EdgeArray,1);
-    num_faces = size(FaceArray,1);
+%% Convert input vector field into a discrete 1-form, omega
+    % Interpolate X to the midpoint of each edge 
+    X_mid = (X(EdgeArray(:,2),:) + X(EdgeArray(:,1),:)) / 2;
     
-%% Assemble a linear operator that converts a nodal vector field to a 1-form
-    % Map a (NX2) X 1 array to an E X 1 array
-    I = repmat((1:num_edges)',6,1);
-    J = [ 
-          reshape(EdgeArray,[],1); 
-          reshape(EdgeArray,[],1) + num_nodes; 
-          reshape(EdgeArray,[],1) + 2*num_nodes  
-         ];
-    V = [ 
-          repmat(EdgeVec(:,1),2,1); 
-          repmat(EdgeVec(:,2),2,1)
-          repmat(EdgeVec(:,3),2,1)
-         ] / 2;
-    VecToForm = sparse( I, J, V, num_edges, num_nodes*3 );
-    clear I J V
+    % Break the vector into normal and tangent components
+    X_t = dot( X_mid, EdgeDir, 2 );
+    X_n = dot( X_mid(b_edges,:), b_norm, 2 );
     
-    % Convert the vector field X to a 1-form
-    X_tall = reshape(X,[],1);
-    omega = VecToForm * X_tall;
+    % Get the component of X along the edge to convert to a discrete 1-form
+    omega = X_t .* EdgeLengths;
     
-    % If verifying Stoke's Theorem, get boundary flux
-    if verify
-        % Interpolate X to the midpoint of each edge 
-        X_mid = (X(EdgeArray(:,2),:) + X(EdgeArray(:,1),:)) / 2;    
-        % Break the vector into normal and tangent components
-        X_n = dot( X_mid(b_edges,:), b_norm, 2 );    
-        % Get the flux through each boundary edge
-        omega_star = X_n .* EdgeLengths(b_edges);
-    end
+    % Get the flux through each boundary edge
+    omega_star = X_n .* EdgeLengths(b_edges);
    
 %% Compute the potential function (0-form) and its associated 1-form
     % Set boundary conditions
@@ -132,22 +114,71 @@ function outStruct = HodgeDecompV2(FaceArray,NodeArray,X)
     % Get the 1-form codiff_beta
     codiff_beta = hs1^(-1) * d1' * hs2 * beta;
 
-%% Reconstruct vector fields using the least squares method
-    % Reconstruct the Exact field:
-    diff_alpha_tall = lsqminnorm( VecToForm, diff_alpha, 'warn' );
-    diff_alpha_v = reshape( diff_alpha_tall, [], 3 );
+%% Reconstruct vector fields from (co)potentials 
+    % omega: Simply use the original vector field
+    omega_v = X;
     
-    % Reconstruct the Coexact field:
-    codiff_beta_tall = lsqminnorm( VecToForm, codiff_beta, 'warn' );
-    codiff_beta_v = reshape( codiff_beta_tall, [], 3 );
+    % grad_G: Gradient of G
+    % Compute the potential gradient on every face
+    grad_alpha = zeros(num_faces,3);
+    for i = 1:num_faces
+        % Get the positions of the vertices for the triangle
+        FaceVerts = NodeArray( FaceArray(i,:), : );
+        % Get two edges of the triangle sharing the first node
+        e12 = FaceVerts(2,:) - FaceVerts(1,:);
+        e13 = FaceVerts(3,:) - FaceVerts(1,:);
+        % Normal vector
+        N = cross(e12,e13) / norm(cross(e12,e13));
+        % Orthonormal basis for the facet tangent plane
+        u1 = e12 / norm(e12);
+        u2 = cross(N,u1);
+        % Change of basis tensor
+        CB = [ e12*u1', e12*u2'
+               e13*u1', e13*u2' ]^(-1);
+        % Get the gradient in the e12,e13 basis
+        ga = [ alpha(FaceArray(i,2)) - alpha(FaceArray(i,1))
+               alpha(FaceArray(i,3)) - alpha(FaceArray(i,1)) ];
+        % Get the gradient in the u1,u2 basis
+        ga = CB*ga;
+        % Get the gradient in the global basis
+        grad_alpha(i,:) = (ga(1)*u1 + ga(2)*u2)';
+    end
+    % diff_alpha vector field is the average of the gradients in each face
+    diff_alpha_v = NodeFaceWeights * grad_alpha;
     
-    % Harmonic field is the leftovers
-    gamma = omega - diff_alpha - codiff_beta;
-    gamma_v = X - diff_alpha_v - codiff_beta_v;
-    
-    % Nodal interpolation of copotential
+    % codiff_beta: Perpendicular to gradient of beta
+    % Nodal average of beta
     beta_n = NodeFaceWeights * hs2 * beta;
-    beta_n(b_nodes) = 0;    
+    beta_n(b_nodes) = 0;
+    % Compute the copotential gradient on every face and rotate 90 degrees
+    cograd_beta = zeros(num_faces,3);
+    for i = 1:num_faces
+        % Get the positions of the vertices for the triangle
+        FaceVerts = NodeArray( FaceArray(i,:), : );
+        % Get two edges of the triangle sharing the first node
+        e12 = FaceVerts(2,:) - FaceVerts(1,:);
+        e13 = FaceVerts(3,:) - FaceVerts(1,:);
+        % Normal vector
+        N = cross(e12,e13) / norm(cross(e12,e13));
+        % Orthonormal basis for the facet tangent plane
+        u1 = e12 / norm(e12);
+        u2 = cross(N,u1);
+        % Change of basis tensor
+        CB = [ e12*u1', e12*u2'
+               e13*u1', e13*u2' ]^(-1);
+        % Get the gradient in the e12,e13 basis
+        gb = [ beta_n(FaceArray(i,2)) - beta_n(FaceArray(i,1))
+               beta_n(FaceArray(i,3)) - beta_n(FaceArray(i,1)) ];
+        % Get the gradient in the u1,u2 basis
+        gb = CB*gb;
+        % Get the gradient in the global basis and rotate 90 degrees
+        cograd_beta(i,:) = cross( N, (gb(1)*u1 + gb(2)*u2)' );
+    end
+    codiff_beta_v = NodeFaceWeights * -cograd_beta;
+    
+    % gamma: Subtract the other two components from the original
+    gamma = omega - diff_alpha - codiff_beta;
+    gamma_v = omega_v - diff_alpha_v - codiff_beta_v;
 
 %% Assemble output structure
     outStruct.alpha = alpha;
@@ -156,7 +187,7 @@ function outStruct = HodgeDecompV2(FaceArray,NodeArray,X)
     outStruct.gamma = gamma_v;
     outStruct.diff_alpha = diff_alpha_v;
     outStruct.codiff_beta = codiff_beta_v;
-    outStruct.omega = X;
+    outStruct.omega = omega_v;
     
 %% Display text outputs
     % Get an inner product operator on 1-forms

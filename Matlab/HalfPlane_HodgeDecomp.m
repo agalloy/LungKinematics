@@ -21,7 +21,7 @@ T = [0,0,0];
 % Rigid rotation angular velocity (from transformation center)
 R = 1;
 % Scaling velocity (from transformation center)
-S = [1,0,0];
+S = [1,1,0];
 % Cut off distance
 d = 100;
 
@@ -166,46 +166,50 @@ PlotTriSurfStreamline( FaceArray, NodeArray(:,[1,2]), diff_alpha(:,[1,2]) + codi
 % toc
 
 %% Green's Function at a node
-Nq = dsearchn( NodeArray, O );
-[G, grad_G] = GreensFunction( FaceArray, NodeArray, Nq );
-% Plot the Green's function with boundary conditions
-figure()   
-sp_array(1) = subplot(1,2,1);
-hold on
-title('Green''s Function with BC''s')
-p = patch('Faces',FaceArray,'Vertices',NodeArray,'FaceColor','interp','CData',G,...
-          'EdgeAlpha',edge_alpha);
-plot3( NodeArray(Nq,1), NodeArray(Nq,2), NodeArray(Nq,3), 'r.', 'MarkerSize', 20 )
-daspect([1 1 1])
-colorbar()
-hold off
-% Plot the gradient of the Green's Function with BC's
-sp_array(2) = subplot(1,2,2);
-hold on
-title('Gradient of Green''s Function with BC''s')
-PlotTriSurfStreamline( FaceArray, NodeArray(:,[1,2]), grad_G(:,[1,2]), options )
-plot3( NodeArray(Nq,1), NodeArray(Nq,2), NodeArray(Nq,3), 'r.', 'MarkerSize', 20 )
-daspect([1 1 1])
-hold off
-
-% Compute the freespace Green's Function
-G_free = log( vecnorm( NodeArray(Nq,:) - NodeArray, 2, 2 ) )/2/pi;
-% Plot the freespace Green's function
-figure()   
-sp_array(1) = subplot(1,2,1);
-hold on
-title('Freespace Green''s Function')
-p = patch('Faces',FaceArray,'Vertices',NodeArray,'FaceColor','interp','CData',G_free,...
-          'EdgeAlpha',edge_alpha);
-plot3( NodeArray(Nq,1), NodeArray(Nq,2), NodeArray(Nq,3), 'r.', 'MarkerSize', 20 )
-daspect([1 1 1])
-colorbar()
-hold off
-% Plot the gradient of the freespace Green's Function with BC's
+% Nq = dsearchn( NodeArray, O );
+% [G, grad_G] = GreensFunction( FaceArray, NodeArray, Nq );
+% % Plot the Green's function with boundary conditions
+% figure()   
+% sp_array(1) = subplot(1,2,1);
+% hold on
+% title('Green''s Function with BC''s')
+% p = patch('Faces',FaceArray,'Vertices',NodeArray,'FaceColor','interp','CData',G,...
+%           'EdgeAlpha',edge_alpha);
+% plot3( NodeArray(Nq,1), NodeArray(Nq,2), NodeArray(Nq,3), 'r.', 'MarkerSize', 20 )
+% daspect([1 1 1])
+% colorbar()
+% hold off
+% % Plot the gradient of the Green's Function with BC's
 % sp_array(2) = subplot(1,2,2);
 % hold on
-% title('Gradient of freespace Green''s Function')
+% title('Gradient of Green''s Function with BC''s')
 % PlotTriSurfStreamline( FaceArray, NodeArray(:,[1,2]), grad_G(:,[1,2]), options )
 % plot3( NodeArray(Nq,1), NodeArray(Nq,2), NodeArray(Nq,3), 'r.', 'MarkerSize', 20 )
 % daspect([1 1 1])
-hold off
+% hold off
+% 
+% % Compute the freespace Green's Function
+% G_free = log( vecnorm( NodeArray(Nq,:) - NodeArray, 2, 2 ) )/2/pi;
+% grad_G_free = GradientVectorField( FaceArray, NodeArray, G_free );
+% % Plot the freespace Green's function
+% figure()   
+% sp_array(1) = subplot(1,2,1);
+% hold on
+% title('Freespace Green''s Function')
+% p = patch('Faces',FaceArray,'Vertices',NodeArray,'FaceColor','interp','CData',G_free,...
+%           'EdgeAlpha',edge_alpha);
+% plot3( NodeArray(Nq,1), NodeArray(Nq,2), NodeArray(Nq,3), 'r.', 'MarkerSize', 20 )
+% daspect([1 1 1])
+% colorbar()
+% hold off
+% %Plot the gradient of the freespace Green's Function with BC's
+% sp_array(2) = subplot(1,2,2);
+% hold on
+% title('Gradient of freespace Green''s Function')
+% PlotTriSurfStreamline( FaceArray, NodeArray(:,[1,2]), grad_G_free(:,[1,2]), options )
+% plot3( NodeArray(Nq,1), NodeArray(Nq,2), NodeArray(Nq,3), 'r.', 'MarkerSize', 20 )
+% daspect([1 1 1])
+% hold off
+
+%% Compare Reconstructions
+comp_link = CompareVectorReconstructions( FaceArray, NodeArray, vel );

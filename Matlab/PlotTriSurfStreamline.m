@@ -26,7 +26,7 @@ function PlotTriSurfStreamline( FaceArray, NodeArray, X, options )
             seeds = GridSample( NodeArray, spacing );
         end
         if num_dim == 2
-            seeds = 1:size(NodeArray,1);
+            seeds = (1:10:size(NodeArray,1))';
         end
     end
     if isfield(options,'num_steps')

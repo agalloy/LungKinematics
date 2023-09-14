@@ -58,50 +58,24 @@ function [G, grad_G] = GreensFunction( FaceArray, NodeArray, Nq )
     G(bc_nodes) = G_bc(bc_nodes);
     G(~bc_nodes) = K(~bc_nodes,~bc_nodes) \ RHS(~bc_nodes);
     
-%% The associated gradient vector field
-    % grad_G: Gradient of G
-    % Compute the potential gradient on every face
-    grad_G = zeros(num_faces,3);
-    for i = 1:num_faces
-        % Get the positions of the vertices for the triangle
-        FaceVerts = NodeArray( FaceArray(i,:), : );
-        % Get two edges of the triangle sharing the first node
-        e12 = FaceVerts(2,:) - FaceVerts(1,:);
-        e13 = FaceVerts(3,:) - FaceVerts(1,:);
-        % Normal vector
-        N = cross(e12,e13) / norm(cross(e12,e13));
-        % Orthonormal basis for the facet tangent plane
-        u1 = e12 / norm(e12);
-        u2 = cross(N,u1);
-        % Change of basis tensor
-        CB = [ e12*u1', e12*u2'
-               e13*u1', e13*u2' ]^(-1);
-        % Get the gradient in the e12,e13 basis
-        ga = [ G(FaceArray(i,2)) - G(FaceArray(i,1))
-               G(FaceArray(i,3)) - G(FaceArray(i,1)) ];
-        % Get the gradient in the u1,u2 basis
-        ga = CB*ga;
-        % Get the gradient in the global basis
-        grad_G(i,:) = (ga(1)*u1 + ga(2)*u2)';
-    end
-    % diff_alpha vector field is the average of the gradients in each face
-    grad_G = NodeFaceWeights * grad_G;
-    
+    % Compute the gradient of Green's Function
+    grad_G = GradientVectorField( FaceArray, NodeArray, G, DEC );
+        
 %% Alternative way of recovering gradient field
-    % Get the 1-form dG
-    dG = d0 * G;
-    
-    % Convert that 1-form to the vector componets along edges
-    grad_G_edge = dG .* EdgeDir ./ EdgeLengths;
-    
-    % Interpolate the edge vector components to node vectors
-    NodeEdgeWeights = NodeEdgeAreas ./ sum(NodeEdgeAreas,2);
+%     % Get the 1-form dG
+%     dG = d0 * G;
+%     
+%     % Convert that 1-form to the vector componets along edges
+%     grad_G_edge = dG .* EdgeDir ./ EdgeLengths;
+%     
+%     % Interpolate the edge vector components to node vectors
+%     NodeEdgeWeights = NodeEdgeAreas ./ sum(NodeEdgeAreas,2);
 %     grad_G = NodeEdgeWeights * grad_G_edge;
     
 %% Test residual of Green's Function
     max_res_nbc = max( K(~bc_nodes,~bc_nodes)*G(~bc_nodes) - delta(~bc_nodes) );
     max_res = max( K*G - delta );
     
+    disp('Maximum Green''s function residual:')
     disp(max_res)
-    disp(max_res_nbc)
 end

@@ -7,14 +7,14 @@ addpath('Y:\Documents\BioMOST_Research\TecPlotTools')
 
 %% User Parameters
 % Data loading parameters
-subject = 'PFS018';
+subject = 'H5983';
 side = 'Left';
-start_step = 5;
+start_step = 10;
 mesh_dir = 'Y:\Documents\BioMOST_Research\Lung_FE\FEBio\Meshes_v3\';
-disp_dir = 'Y:\Documents\BioMOST_Research\Lung_FE\FEBio\FEBio_Runs\TidalBreathing\';
+disp_dir = 'Y:\Documents\BioMOST_Research\Lung_FE\FEBio\FEBio_Runs\TLCtoFRC_PenaltyStep\';
 
 % Plotting parameters
-plot_invert = false;
+plot_invert = true;
 
 % Tecplot parameters
 tec_dir = 'Y:\Documents\BioMOST_Research\Lung_Analysis\Tecplot\HodgeDecomposition';
@@ -164,6 +164,9 @@ set(gca, 'Zdir', 'reverse')
 set(gca, 'Ydir', 'reverse')
 end
 hold off
+
+%% Compare Vector Field Reconstructions
+comp_link = CompareVectorReconstructions( FA_fissure, NA_fissure, ut_inc );
 
 %% Save to Tecplot
 if save_tec
