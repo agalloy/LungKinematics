@@ -21,7 +21,7 @@ function outStruct = HHD_GradientRecon(FaceArray,NodeArray,X)
     %   (Harmonic component is absorbed into exact component)
     % bc = 1: Potential is set to zero at all boundary nodes 
     %   (Harmonic component is orthogonal to exact and coexact components)
-    bc = 0;
+    bc = 1;
     
     % Display verification info
     verify = false;

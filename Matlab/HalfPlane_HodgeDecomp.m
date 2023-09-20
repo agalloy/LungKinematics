@@ -76,7 +76,7 @@ vel(NA_far,:) = 0;
 %% Perform HHD of vector field
 % Helmholtz-Hodge Decomposition
 tic
-HHDStruct = HodgeDecompV2( FaceArray, NodeArray, vel );
+HHDStruct = HHD_GradientRecon( FaceArray, NodeArray, vel );
 toc
 % Load results
 alpha = HHDStruct.alpha;

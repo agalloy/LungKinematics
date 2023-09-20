@@ -62,7 +62,7 @@ FA_fissure = global2local(FA_fissure);
 
 % Helmholtz-Hodge Decomposition
 tic
-HHDStruct = HodgeDecompV2( FA_fissure, NA_fissure, ut_inc );
+HHDStruct = HHD_GradientRecon( FA_fissure, NA_fissure, ut_inc );
 toc
 
 alpha = HHDStruct.alpha;
@@ -166,7 +166,7 @@ end
 hold off
 
 %% Compare Vector Field Reconstructions
-comp_link = CompareVectorReconstructions( FA_fissure, NA_fissure, ut_inc );
+% comp_link = CompareVectorReconstructions( FA_fissure, NA_fissure, ut_inc );
 
 %% Save to Tecplot
 if save_tec

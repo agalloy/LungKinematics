@@ -70,10 +70,12 @@ function hlink = CompareVectorReconstructions( FaceArray, NodeArray, X, DEC )
     
 %% Compare vector fields reconstructed from both methods visually
     options = struct();
+    
     figure()
     sp_array(1) = subplot(2,2,1);
     title('Original Vector Field')
     PlotTriSurfStreamline( FaceArray, NodeArray(:,1:ndim), X(:,1:ndim), options )
+    daspect([1 1 1])
     %figure()
     sp_array(2) = subplot(2,2,2);
     title('Node interpolated 1-form reconstruction')
