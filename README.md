@@ -2,16 +2,17 @@
 A set of tools and analysis pipelines for lung and lobar kinematics.
 
 CURRENT TASK:
-Test different vector field reconstruction methods.
+Examine the results of HHD on simple lung lobe transformations.
 
 SUB TASKS:
-- Implemented function for comparing 1-form and gradient based reconstruction. [X]
-- Implemented least squares reconstruction as an "optimal" method. [X]
-- Compared all three reconstructions for an exact planar vector field. [X]
-- Compared all three reconstructions for a non-exact planar vector field. [X]
-- Compared all three reconstructions for a lung vector field. [X]
-- Saved previous version of HHD algorithm as HHD_GradientRecon.m [X]
-- Least-squares reconstruction implemented into the main HHD algorithm. [X]
+- Implement a new analysis code that does the following [X]
+	- Loads a lung mesh and lobar fissure [X]
+	- Creates vector fields for various simple transformations on one of the lobes [X]
+	- Restricts the vector field to the lobar fissure and applies HHD [X]
+- Implement a function that identifies a contact interface between two surfaces [X]
+
+STRUCTURAL CHANGES:
+
 
 What's required to make this more "independent"?
 - Address External Dependencies

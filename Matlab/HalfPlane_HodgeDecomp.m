@@ -19,9 +19,14 @@ O = [0,0,0];
 % Uniform translation velocity
 T = [0,0,0];
 % Rigid rotation angular velocity (from transformation center)
-R = 1;
+R = 0;
 % Scaling velocity (from transformation center)
-S = [1,1,0];
+S = [0,0,0];
+
+% Impulse of divergence and/or curl
+div_imp_mag = 1;
+curl_imp_mag = 0;
+
 % Cut off distance
 d = 100;
 
@@ -63,11 +68,22 @@ ggopts = struct();
 seed_nodes(seed_nodes > size(NodeArray,1)) = [];
 
 %% Generate velocity field at each node
-% Calculate velocity vector at each node
+% Rigid-body rotation (uniform curl)
 A_comp = R * cross( NodeArray - O, repmat([0,0,1],size(NodeArray,1),1), 2 );
-%A_comp = A_comp ./ vecnorm(NodeArray - O, 2, 2).^2;
+% Expansion (uniform divergence)
 S_comp = ( NodeArray - O ).* S;
-vel = A_comp + S_comp + T;
+
+% Divergence impulse
+div_imp = div_imp_mag / (2*pi)...
+          * ( NodeArray - O )...
+          ./ vecnorm(NodeArray - O, 2, 2).^2;
+      
+% Curl impulse
+curl_imp = curl_imp_mag / (2*pi)...
+           * cross( NodeArray - O, repmat([0,0,1],size(NodeArray,1),1) )...
+           ./ vecnorm(NodeArray - O, 2, 2).^2;
+
+vel = A_comp + S_comp + div_imp + curl_imp + T;
 
 % Cut off transformations at a certain distance from origin
 NA_far = vecnorm(NodeArray - O, 2, 2) > d;
@@ -98,10 +114,12 @@ options.seeds = seed_nodes;
 
 figure()
 title('Original Vector Field')
+hold on
 PlotTriSurfStreamline( FaceArray, NodeArray(:,[1,2]), omega(:,[1,2]), options )
 q = quiver(NodeArray(seed_nodes,1),NodeArray(seed_nodes,2),omega(seed_nodes,1),omega(seed_nodes,2),...
     'Color','r','AutoscaleFactor',0.5);
 set(q,'LineWidth',2.5)
+hold off
 daspect([1 1 1])
 
 %% Visualize Helmholtz-Hodge Decomposition
@@ -212,4 +230,4 @@ PlotTriSurfStreamline( FaceArray, NodeArray(:,[1,2]), diff_alpha(:,[1,2]) + codi
 % hold off
 
 %% Compare Reconstructions
-comp_link = CompareVectorReconstructions( FaceArray, NodeArray, vel );
+% comp_link = CompareVectorReconstructions( FaceArray, NodeArray, vel );
