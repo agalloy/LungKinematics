@@ -1,6 +1,7 @@
 %% Initialize Matlab
 clear
 clc
+close all
 
 %% User Parameters: Mesh
 % Mesh bounds
@@ -17,14 +18,14 @@ rng(37484)
 % Transformation center
 O = [0,0,0];
 % Uniform translation velocity
-T = [0,0,0];
+T = [1,0,0];
 % Rigid rotation angular velocity (from transformation center)
-R = 0;
+R = 1;
 % Scaling velocity (from transformation center)
-S = [0,0,0];
+S = [1,1,0];
 
 % Impulse of divergence and/or curl
-div_imp_mag = 1;
+div_imp_mag = 0;
 curl_imp_mag = 0;
 
 % Cut off distance
@@ -92,8 +93,10 @@ vel(NA_far,:) = 0;
 %% Perform HHD of vector field
 % Helmholtz-Hodge Decomposition
 tic
-HHDStruct = HHD_GradientRecon( FaceArray, NodeArray, vel );
+%HHDStruct = HHD_GradientRecon( FaceArray, NodeArray, vel );
+HHDStruct = NaturalHHD( FaceArray, NodeArray, vel );
 toc
+
 % Load results
 alpha = HHDStruct.alpha;
 beta = HHDStruct.beta;
@@ -112,15 +115,15 @@ options.seeds = seed_nodes;
 %options.step_size = 0.001;
 %options.num_steps = 3000;
 
-figure()
-title('Original Vector Field')
-hold on
-PlotTriSurfStreamline( FaceArray, NodeArray(:,[1,2]), omega(:,[1,2]), options )
-q = quiver(NodeArray(seed_nodes,1),NodeArray(seed_nodes,2),omega(seed_nodes,1),omega(seed_nodes,2),...
-    'Color','r','AutoscaleFactor',0.5);
-set(q,'LineWidth',2.5)
-hold off
-daspect([1 1 1])
+% figure()
+% title('Original Vector Field')
+% hold on
+% PlotTriSurfStreamline( FaceArray, NodeArray(:,[1,2]), omega(:,[1,2]), options )
+% q = quiver(NodeArray(seed_nodes,1),NodeArray(seed_nodes,2),omega(seed_nodes,1),omega(seed_nodes,2),...
+%     'Color','r','AutoscaleFactor',0.5);
+% set(q,'LineWidth',2.5)
+% hold off
+% daspect([1 1 1])
 
 %% Visualize Helmholtz-Hodge Decomposition
 figure()
@@ -156,19 +159,19 @@ PlotTriSurfStreamline( FaceArray, NodeArray(:,[1,2]), codiff_beta(:,[1,2]), opti
 
 
 %% Vector field with potential
-figure()
-hold on
-patch('Faces',FaceArray,'Vertices',NodeArray,'FaceColor','interp','CData',alpha,...
-      'EdgeAlpha',edge_alpha)
-q = quiver(NodeArray(seed_nodes,1),NodeArray(seed_nodes,2),diff_alpha(seed_nodes,1),diff_alpha(seed_nodes,2),...
-    'Color','k','AutoscaleFactor',0.5);
-set(q,'LineWidth',4)
-daspect([1 1 1])
-colorbar()
+% figure()
+% hold on
+% patch('Faces',FaceArray,'Vertices',NodeArray,'FaceColor','interp','CData',alpha,...
+%       'EdgeAlpha',edge_alpha)
+% q = quiver(NodeArray(seed_nodes,1),NodeArray(seed_nodes,2),diff_alpha(seed_nodes,1),diff_alpha(seed_nodes,2),...
+%     'Color','k','AutoscaleFactor',0.5);
+% set(q,'LineWidth',4)
+% daspect([1 1 1])
+% colorbar()
 %% Exact plus coexact
-figure()
-title('Exact vector field component plus Coexact vector field component')
-PlotTriSurfStreamline( FaceArray, NodeArray(:,[1,2]), diff_alpha(:,[1,2]) + codiff_beta(:,[1,2]), options )
+% figure()
+% title('Exact vector field component plus Coexact vector field component')
+% PlotTriSurfStreamline( FaceArray, NodeArray(:,[1,2]), diff_alpha(:,[1,2]) + codiff_beta(:,[1,2]), options )
 
 %% Exact component from boundary
 % tic
@@ -184,7 +187,8 @@ PlotTriSurfStreamline( FaceArray, NodeArray(:,[1,2]), diff_alpha(:,[1,2]) + codi
 % toc
 
 %% Green's Function at a node
-% Nq = dsearchn( NodeArray, O );
+% xo = [0,0,0];
+% Nq = dsearchn( NodeArray, xo );
 % [G, grad_G] = GreensFunction( FaceArray, NodeArray, Nq );
 % % Plot the Green's function with boundary conditions
 % figure()   
@@ -207,7 +211,7 @@ PlotTriSurfStreamline( FaceArray, NodeArray(:,[1,2]), diff_alpha(:,[1,2]) + codi
 % hold off
 % 
 % % Compute the freespace Green's Function
-% G_free = log( vecnorm( NodeArray(Nq,:) - NodeArray, 2, 2 ) )/2/pi;
+% G_free = -log( vecnorm( NodeArray(Nq,:) - NodeArray, 2, 2 ) )/2/pi;
 % grad_G_free = GradientVectorField( FaceArray, NodeArray, G_free );
 % % Plot the freespace Green's function
 % figure()   
@@ -224,10 +228,20 @@ PlotTriSurfStreamline( FaceArray, NodeArray(:,[1,2]), diff_alpha(:,[1,2]) + codi
 % sp_array(2) = subplot(1,2,2);
 % hold on
 % title('Gradient of freespace Green''s Function')
-% PlotTriSurfStreamline( FaceArray, NodeArray(:,[1,2]), grad_G_free(:,[1,2]), options )
+% % PlotTriSurfStreamline( FaceArray, NodeArray(:,[1,2]), grad_G_free(:,[1,2]), options )
 % plot3( NodeArray(Nq,1), NodeArray(Nq,2), NodeArray(Nq,3), 'r.', 'MarkerSize', 20 )
 % daspect([1 1 1])
 % hold off
+% 
+% % Compare Green's function with BC's to without
+% n_dist = vecnorm( NodeArray - NodeArray(Nq,:), 2, 2 );
+% G_adj = G + (G_free(end) - G(end));
+% 
+% figure()
+% hold on
+% plot( n_dist, G_free, 'o' )
+% plot( n_dist, G_adj, 'o' )
+% legend( 'Freespace Green''s Function', 'Green''s Function with BC''s' )
 
 %% Compare Reconstructions
 % comp_link = CompareVectorReconstructions( FaceArray, NodeArray, vel );

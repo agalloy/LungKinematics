@@ -151,6 +151,10 @@ function out_struct = AssembleDEC( FaceArray, NodeArray )
     V = reshape(EdgeOrient,[],1);
     d1 = sparse( I, J, V, num_faces , num_edges );
     clear I J V
+
+%% Assemble node star (neighbor) operators
+    NodeStar = EdgeNodes' * EdgeNodes;
+    NodeStar = NodeStar .* ~eye( num_nodes );
     
 %% Assemble output structure
     out_struct = struct();
@@ -180,5 +184,6 @@ function out_struct = AssembleDEC( FaceArray, NodeArray )
     out_struct.hs2 = hs2;
     out_struct.d0 = d0;
     out_struct.d1 = d1;
+    out_struct.NodeStar = NodeStar;
     
 end

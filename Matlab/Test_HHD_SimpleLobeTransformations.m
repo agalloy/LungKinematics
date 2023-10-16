@@ -28,12 +28,12 @@ origin = [0,0,0];
 % Scale factors (from transformation center)
 scale_factors = [1,1,1];
 % Rotation Axis (auto-normalized)
-rot_axis = [0,0,1];
+rot_axis = [1,0,0];
 rot_axis = rot_axis / norm( rot_axis );
 % Rigid rotation angular velocity (from transformation center)
 rot_vel = 0;
 % Uniform translation velocity
-tran_vel = [1,0,0];
+tran_vel = [0,0,1];
 
 %% Load subject's mesh and identify fissure
 % Load mesh data
