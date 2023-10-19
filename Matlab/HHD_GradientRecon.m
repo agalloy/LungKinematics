@@ -190,17 +190,20 @@ function outStruct = HHD_GradientRecon(FaceArray,NodeArray,X)
     outStruct.omega = omega_v;
     
 %% Display text outputs
-    % Get an inner product operator on 1-forms
+    % Assemble inner product operator on 1-forms
     ip1 = hs1;  
     disp('Magnitude of vector field:')
     omega_mag = sqrt( omega' * ip1 * omega );
     disp( omega_mag )
-    disp('Exact component of vector field:')
-    disp( sqrt( diff_alpha' * ip1 * diff_alpha ) )
-    disp('Coexact component of vector field')
-    disp( sqrt( codiff_beta' * ip1 * codiff_beta ) )
-    disp('Harmonic component of vector field')
-    disp( sqrt( gamma' * ip1 * gamma ) )
+    disp('Magnitude of Exact component:')
+    diff_alpha_mag = sqrt( diff_alpha' * ip1 * diff_alpha );
+    disp( diff_alpha_mag )
+    disp('Magnitude of Coexact component:')
+    codiff_beta_mag = sqrt( codiff_beta' * ip1 * codiff_beta );
+    disp( codiff_beta_mag )
+    disp('Magnitude of Harmonic component:')
+    gamma_mag = sqrt( gamma' * ip1 * gamma );
+    disp( gamma_mag )
     
     if verify
         % Residual for each solved quantity

@@ -18,7 +18,7 @@ rng(37484)
 % Transformation center
 O = [0,0,0];
 % Uniform translation velocity
-T = [1,0,0];
+T = [1,1,0];
 % Rigid rotation angular velocity (from transformation center)
 R = 1;
 % Scaling velocity (from transformation center)

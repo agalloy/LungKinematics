@@ -2,11 +2,16 @@
 A set of tools and analysis pipelines for lung and lobar kinematics.
 
 CURRENT TASK:
-Implement the "Natural HHD" algorithm from Bhatia et al. 2014.
+Find the "optimal" 3D velocity fields for reducing the exact component along the fissure surface
+that is a linear combination of a set of given input vector fields.
 
 SUB TASKS:
-	- Implement Natural HHD function (NaturalHHD.m) [ ]
-	- Compare Natural HHD to BC HHD on planar vector field examples [ ]
+- Optimization task [ ]
+  - Generate a set of input vector fields for analysis [ ]
+  - Assemble the covariance matrix for the inner product between the exact components of each vector field [ ]
+  - Find the eigenvectors and values of this covariance matrix [ ]
+  - Visualize vector fields associated with those eigenvectors [ ]
+- Have the HHD algorithm output 
 
 STRUCTURAL CHANGES:
 
