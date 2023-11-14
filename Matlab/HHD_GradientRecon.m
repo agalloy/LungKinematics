@@ -185,9 +185,13 @@ function outStruct = HHD_GradientRecon(FaceArray,NodeArray,X)
     outStruct.beta = beta;
     outStruct.beta_n = beta_n;
     outStruct.gamma = gamma_v;
+    outStruct.gamma1F = gamma;
     outStruct.diff_alpha = diff_alpha_v;
+    outStruct.diff_alpha1F = diff_alpha;
     outStruct.codiff_beta = codiff_beta_v;
+    outStruct.codiff_beta1F = codiff_beta;
     outStruct.omega = omega_v;
+    outStruct.omega1F = omega;
     
 %% Display text outputs
     % Assemble inner product operator on 1-forms

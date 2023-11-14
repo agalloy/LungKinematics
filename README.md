@@ -6,14 +6,15 @@ Find the "optimal" 3D velocity fields for reducing the exact component along the
 that is a linear combination of a set of given input vector fields.
 
 SUB TASKS:
-- Optimization task [ ]
-  - Generate a set of input vector fields for analysis [ ]
-  - Assemble the covariance matrix for the inner product between the exact components of each vector field [ ]
-  - Find the eigenvectors and values of this covariance matrix [ ]
-  - Visualize vector fields associated with those eigenvectors [ ]
-- Have the HHD algorithm output 
+- Optimization task [X]
+  - Generate a set of input vector fields for analysis [X]
+  - Assemble the covariance matrix for the inner product between the exact components of each vector field [X]
+  - Find the eigenvectors and values of this covariance matrix [X]
+  - Visualize vector fields associated with those eigenvectors [X]
 
 STRUCTURAL CHANGES:
+- HHD_GradientRecon.m now has the decomposed 1-forms in its output structure.
+
 
 
 What's required to make this more "independent"?

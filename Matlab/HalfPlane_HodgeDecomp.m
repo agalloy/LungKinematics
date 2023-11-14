@@ -18,11 +18,11 @@ rng(37484)
 % Transformation center
 O = [0,0,0];
 % Uniform translation velocity
-T = [1,1,0];
+T = [0,0,0];
 % Rigid rotation angular velocity (from transformation center)
 R = 1;
 % Scaling velocity (from transformation center)
-S = [1,1,0];
+S = [0,0,0];
 
 % Impulse of divergence and/or curl
 div_imp_mag = 0;
@@ -33,7 +33,7 @@ d = 100;
 
 %% User Parameters: Plot
 % Seeds per dimension (must be smaller than mesh density)
-num_seeds = [12,12];
+num_seeds = [11,11];
 % Line width
 lw = 2;
 % Edge Alpha
@@ -93,8 +93,8 @@ vel(NA_far,:) = 0;
 %% Perform HHD of vector field
 % Helmholtz-Hodge Decomposition
 tic
-%HHDStruct = HHD_GradientRecon( FaceArray, NodeArray, vel );
-HHDStruct = NaturalHHD( FaceArray, NodeArray, vel );
+HHDStruct = HHD_GradientRecon( FaceArray, NodeArray, vel );
+%HHDStruct = NaturalHHD( FaceArray, NodeArray, vel );
 toc
 
 % Load results
