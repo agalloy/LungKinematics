@@ -2,18 +2,20 @@
 A set of tools and analysis pipelines for lung and lobar kinematics.
 
 CURRENT TASK:
-Find the "optimal" 3D velocity fields for reducing the exact component along the fissure surface
-that is a linear combination of a set of given input vector fields.
+1) Create a flat but reasonable lobar fissure for analyzing boundary effects on HHD results.
 
 SUB TASKS:
-- Optimization task [X]
-  - Generate a set of input vector fields for analysis [X]
-  - Assemble the covariance matrix for the inner product between the exact components of each vector field [X]
-  - Find the eigenvectors and values of this covariance matrix [X]
-  - Visualize vector fields associated with those eigenvectors [X]
+- Flat fissure HHD [X]
+  - Load a subjects mesh and identify lobar fissure [X]
+  - "Flatten" the lobar fissure [X]
+  - Generate an input vector field on the flattened lobar fissure [X]
+  - Perform HHD [X]
+  - Plot HHD Components[X]
+  - Analyze Results [X]
 
 STRUCTURAL CHANGES:
-- HHD_GradientRecon.m now has the decomposed 1-forms in its output structure.
+- Grid Sample now works in 2D
+- Flat fissure was incorporated to Test_HHDSimpleLobeTransformations.m
 
 
 

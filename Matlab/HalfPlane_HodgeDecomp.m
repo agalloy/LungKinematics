@@ -20,9 +20,9 @@ O = [0,0,0];
 % Uniform translation velocity
 T = [0,0,0];
 % Rigid rotation angular velocity (from transformation center)
-R = 1;
+R = 0;
 % Scaling velocity (from transformation center)
-S = [0,0,0];
+S = [1,0,0];
 
 % Impulse of divergence and/or curl
 div_imp_mag = 0;
