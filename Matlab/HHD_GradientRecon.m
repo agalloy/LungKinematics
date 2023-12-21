@@ -14,17 +14,34 @@
 %   gamma = The harmonic component of the vector field. What's left over from
 %       the other two components. Translational component?
 
-function outStruct = HHD_GradientRecon(FaceArray,NodeArray,X)
-%% Quick settings
+function outStruct = HHD_GradientRecon(FaceArray,NodeArray,X,options)
+%% Parse options structure or apply defaults
+    % Parse optional options input
+    if ~exist( 'options', 'var' )
+        options = struct();
+    end
     % Boundary conditions to use
-    % bc = 0: Potential is set to zero at a single boundary node 
-    %   (Harmonic component is absorbed into exact component)
-    % bc = 1: Potential is set to zero at all boundary nodes 
-    %   (Harmonic component is orthogonal to exact and coexact components)
-    bc = 1;
-    
+        % bc = 0: Potential is set to zero at a single boundary node 
+        %   (Harmonic component is absorbed into exact component)
+        % bc = 1: Potential is set to zero at all boundary nodes 
+        %   (Harmonic component is orthogonal to exact and coexact components)
+    if isfield(options,'bc')
+        bc = options.bc;
+    else
+        bc = 1;
+    end     
     % Display verification info
-    verify = false;
+    if isfield(options,'verify')
+        verify = options.verify;
+    else
+        verify = false;
+    end
+    % Enhance exact and coexact fields
+    if isfield(options,'enhance')
+        enhance = options.enhance;
+    else
+        enhance = false;
+    end
 
 
 %% Assemble necessary geometry prerequisites
@@ -65,8 +82,8 @@ function outStruct = HHD_GradientRecon(FaceArray,NodeArray,X)
     % Set boundary conditions
     alpha_bc = nan(num_nodes,1);
     if bitand(bc,1) == 1
-        % Set potential on all boundary nodes to 0
         bc_nodes = b_nodes;
+        % Set potential on all boundary nodes to 0
         alpha_bc(bc_nodes) = 0;
     else
         % Set potential to zero at a single point
@@ -85,11 +102,7 @@ function outStruct = HHD_GradientRecon(FaceArray,NodeArray,X)
     % Solve system for alpha
     alpha = nan(num_nodes,1);
     alpha(bc_nodes) = alpha_bc(bc_nodes);
-    alpha(~bc_nodes) = K(~bc_nodes,~bc_nodes) \ RHS;
-
-    
-    % Get the 1-form diff_alpha
-    diff_alpha = d0 * alpha;    
+    alpha(~bc_nodes) = K(~bc_nodes,~bc_nodes) \ RHS;  
 
 %% Compute the copotential function (2-form) and its associated 1-form
     % Set boundary conditions
@@ -110,8 +123,16 @@ function outStruct = HHD_GradientRecon(FaceArray,NodeArray,X)
     beta = nan(num_faces,1);
     beta(bc_faces) = beta_bc(bc_faces);
     beta(~bc_faces) = K(~bc_faces,~bc_faces) \ RHS;
-
-    % Get the 1-form codiff_beta
+    
+%% Enhance exact and coexact components
+    % Enhance exact and coexact components based on the 
+    % gradients of the 1-forms square magnitude field.
+    if enhance
+        [alpha,beta] = EnhanceHHD( FaceArray, NodeArray, X, omega, alpha, beta, DEC );
+    end
+    
+    % et the 1-forms associated with alpha and beta
+    diff_alpha = d0 * alpha;  
     codiff_beta = hs1^(-1) * d1' * hs2 * beta;
 
 %% Reconstruct vector fields from (co)potentials 

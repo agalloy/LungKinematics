@@ -2,22 +2,26 @@
 A set of tools and analysis pipelines for lung and lobar kinematics.
 
 CURRENT TASK:
-1) Create a flat but reasonable lobar fissure for analyzing boundary effects on HHD results.
+1) Develop a "gradient enhanced" HHD where the component of the vector field aligned with the (co)gradient of 
+   square magnitude is reintroduced to the (co)exact component.
 
 SUB TASKS:
-- Flat fissure HHD [X]
-  - Load a subjects mesh and identify lobar fissure [X]
-  - "Flatten" the lobar fissure [X]
-  - Generate an input vector field on the flattened lobar fissure [X]
-  - Perform HHD [X]
-  - Plot HHD Components[X]
-  - Analyze Results [X]
+- "Gradient enhanced" HHD [ ]
+  - Perform normal HHD [ ]
+  - Exact component [ ]
+    - Compute the magnitude of the 1-form at each node [ ]
+    - Take the gradient of this scalar field to get a new 1-form [ ]
+    - Add back the components of the input aligned with the new 1-form to the exact component [ ]
+  - Coexact component [ ]
+    - Compute the magnitude of the 1-form at each face [ ]
+    - Take the gradient of this scalar field to get a new 1-form [ ]
+    - Add back the components of the input aligned with the new 1-form to the coexact component [ ]
+  - Harmonic component is the remainder [ ]
+  - Perform usual verification checks to ensure orthogonality and whatnot [ ]
+  - Analyze results [ ]
 
 STRUCTURAL CHANGES:
-- Grid Sample now works in 2D
-- Flat fissure was incorporated to Test_HHDSimpleLobeTransformations.m
-
-
+- HHD now takes in an optional options structure
 
 What's required to make this more "independent"?
 - Address External Dependencies

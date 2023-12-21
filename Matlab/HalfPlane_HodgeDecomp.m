@@ -1,7 +1,6 @@
 %% Initialize Matlab
 clear
 clc
-close all
 
 %% User Parameters: Mesh
 % Mesh bounds
@@ -20,13 +19,16 @@ O = [0,0,0];
 % Uniform translation velocity
 T = [0,0,0];
 % Rigid rotation angular velocity (from transformation center)
-R = 0;
+R = 1;
 % Scaling velocity (from transformation center)
-S = [1,0,0];
-
-% Impulse of divergence and/or curl
+S = [1,1,1];
+% Divergence impulse
 div_imp_mag = 0;
+% Curl impulse
 curl_imp_mag = 0;
+
+% Use "enhanced" HHD?
+enhance = true;
 
 % Cut off distance
 d = 100;
@@ -93,7 +95,9 @@ vel(NA_far,:) = 0;
 %% Perform HHD of vector field
 % Helmholtz-Hodge Decomposition
 tic
-HHDStruct = HHD_GradientRecon( FaceArray, NodeArray, vel );
+HHD_options = struct();
+HHD_options.enhance = enhance;
+HHDStruct = HHD_GradientRecon( FaceArray, NodeArray, vel, HHD_options );
 %HHDStruct = NaturalHHD( FaceArray, NodeArray, vel );
 toc
 

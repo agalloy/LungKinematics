@@ -37,7 +37,10 @@ rot_axis = rot_axis / norm( rot_axis );
 % Rigid rotation angular velocity (from transformation center)
 rot_vel = 0;
 % Uniform translation velocity
-tran_vel = [0,0,0];
+tran_vel = [1,1,1];
+
+% Use "enhanced" HHD?
+enhance = true;
 
 %% Load subject's mesh and identify fissure, flatten fissure if desired
 % Load mesh data
@@ -87,8 +90,10 @@ X = X_scale + X_rot + tran_vel;
 X_fissure = X;
 
 %% Perform Helmoltz-Hodge Decomposition on the generated vector field
-
-HHDStruct = HHD_GradientRecon( FA_fissure_local, NA_fissure, X_fissure );
+% Perform HHD with desired options
+HHD_options = struct();
+HHD_options.enhance = enhance;
+HHDStruct = HHD_GradientRecon( FA_fissure_local, NA_fissure, X_fissure, HHD_options );
 % Read results
 alpha = HHDStruct.alpha;
 beta_n = HHDStruct.beta_n;
