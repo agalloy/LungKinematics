@@ -2,8 +2,8 @@
 %% Initialize Matlab
 clear
 clc
-close all
 addpath('Y:\Documents\BioMOST_Research\TecPlotTools')
+close all
 
 %% User Parameters
 % Data loading parameters
@@ -61,8 +61,10 @@ global2local(np_mov) = 1:size(np_mov,1);
 FA_fissure = global2local(FA_fissure);
 
 % Helmholtz-Hodge Decomposition
+options.enhance = true;
+options.verify = true;
 tic
-HHDStruct = HHD_GradientRecon( FA_fissure, NA_fissure, ut_inc );
+HHDStruct = HHD_GradientRecon( FA_fissure, NA_fissure, ut_inc, options );
 toc
 
 alpha = HHDStruct.alpha;

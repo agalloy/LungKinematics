@@ -77,63 +77,22 @@ function outStruct = HHD_GradientRecon(FaceArray,NodeArray,X,options)
     
     % Get the flux through each boundary edge
     omega_star = X_n .* EdgeLengths(b_edges);
-   
-%% Compute the potential function (0-form) and its associated 1-form
-    % Set boundary conditions
-    alpha_bc = nan(num_nodes,1);
-    if bitand(bc,1) == 1
-        bc_nodes = b_nodes;
-        % Set potential on all boundary nodes to 0
-        alpha_bc(bc_nodes) = 0;
-    else
-        % Set potential to zero at a single point
-        bc_nodes = (1:num_nodes)' == find(b_nodes,1);
-        alpha_bc(bc_nodes) = 0;
-    end
     
-    % Compute "stiffness matrix"
-    K = d0' * hs1 * d0;
-    
-    % Compute right hand side vector (with BC's)
-    f = d0' * hs1 * omega;
-    f_bc = K(~bc_nodes,bc_nodes) * alpha_bc(bc_nodes);
-    RHS = f(~bc_nodes) - f_bc;
-    
-    % Solve system for alpha
-    alpha = nan(num_nodes,1);
-    alpha(bc_nodes) = alpha_bc(bc_nodes);
-    alpha(~bc_nodes) = K(~bc_nodes,~bc_nodes) \ RHS;  
-
-%% Compute the copotential function (2-form) and its associated 1-form
-    % Set boundary conditions
-    beta_bc = nan(num_faces,1);
-    bc_faces = false(num_faces,1);
-    % No boundary conditions defined for copotential as of now
-    % However, discretization automatically enforces 0 copotential along boundary 
-    
-    % Compute "stiffness matrix"
-    K = d1 * hs1^(-1) * d1' * hs2;
-    
-    % Compute right hand side vector (with BC's)
-    f = d1 * omega;
-    f_bc = K(~bc_faces,bc_faces) * beta_bc(bc_faces);
-    RHS = f(~bc_faces) - f_bc;
-    
-    % Solve system for beta
-    beta = nan(num_faces,1);
-    beta(bc_faces) = beta_bc(bc_faces);
-    beta(~bc_faces) = K(~bc_faces,~bc_faces) \ RHS;
+%% Perform HHD on the one-form
+    HHD_options = options;
+    HHD_options.DEC = DEC;
+    [alpha,beta] = OneFormHHD(FaceArray,NodeArray,omega,HHD_options);
     
 %% Enhance exact and coexact components
     % Enhance exact and coexact components based on the 
     % gradients of the 1-forms square magnitude field.
     if enhance
-        [alpha,beta] = EnhanceHHD( FaceArray, NodeArray, X, omega, alpha, beta, DEC );
+        [ alpha, diff_alpha, beta, codiff_beta ] = EnhanceHHD( FaceArray, NodeArray, X, omega, alpha, beta, DEC );
+    else
+        % Get the 1-forms associated with alpha and beta
+        diff_alpha = d0 * alpha;  
+        codiff_beta = hs1^(-1) * d1' * hs2 * beta;
     end
-    
-    % et the 1-forms associated with alpha and beta
-    diff_alpha = d0 * alpha;  
-    codiff_beta = hs1^(-1) * d1' * hs2 * beta;
 
 %% Reconstruct vector fields from (co)potentials 
     % omega: Simply use the original vector field
@@ -170,7 +129,7 @@ function outStruct = HHD_GradientRecon(FaceArray,NodeArray,X,options)
     % codiff_beta: Perpendicular to gradient of beta
     % Nodal average of beta
     beta_n = NodeFaceWeights * hs2 * beta;
-    beta_n(b_nodes) = 0;
+    %beta_n(b_nodes) = 0;
     % Compute the copotential gradient on every face and rotate 90 degrees
     cograd_beta = zeros(num_faces,3);
     for i = 1:num_faces
@@ -214,31 +173,19 @@ function outStruct = HHD_GradientRecon(FaceArray,NodeArray,X,options)
     outStruct.omega = omega_v;
     outStruct.omega1F = omega;
     
-%% Display text outputs
+%% Display verification info
     % Assemble inner product operator on 1-forms
     ip1 = hs1;  
-    disp('Magnitude of vector field:')
     omega_mag = sqrt( omega' * ip1 * omega );
-    disp( omega_mag )
-    disp('Magnitude of Exact component:')
     diff_alpha_mag = sqrt( diff_alpha' * ip1 * diff_alpha );
-    disp( diff_alpha_mag )
-    disp('Magnitude of Coexact component:')
     codiff_beta_mag = sqrt( codiff_beta' * ip1 * codiff_beta );
-    disp( codiff_beta_mag )
-    disp('Magnitude of Harmonic component:')
     gamma_mag = sqrt( gamma' * ip1 * gamma );
-    disp( gamma_mag )
     
-    if verify
-        % Residual for each solved quantity
-        alpha_res = d0' * hs1 * omega - d0' * hs1 * d0 * alpha;
-        disp('Max residual: Potential')
-        disp( max( alpha_res(~bc_nodes) ) )
-        beta_res = d1 * omega - d1 * hs1^(-1) * d1' * hs2 * beta;
-        disp('Max residual: Copotential')
-        disp( max( beta_res(~bc_faces) ) )
-        
+    perc_exact = diff_alpha_mag^2 / omega_mag^2 * 100;
+    perc_coexact = codiff_beta_mag^2 / omega_mag^2 * 100;
+    perc_harmonic = gamma_mag^2 / omega_mag^2 * 100;
+    
+    if verify       
         % Inner product between decomposed 1-forms
         disp('Inner product: exact and coexact (should be 0 if orthogonal)')
         disp( diff_alpha' * ip1 * codiff_beta )
@@ -272,4 +219,15 @@ function outStruct = HHD_GradientRecon(FaceArray,NodeArray,X,options)
         disp('One-form % loss')
         disp( 100 - omega_mag / omega_mag_v * 100 )
     end
+    
+%% Display text outputs
+    % Assemble inner product operator on 1-forms
+    disp('Magnitude of vector field:')
+    fprintf( '\t%f\n', omega_mag )
+    disp('Magnitude of Exact component:')
+    fprintf( '\t%f (%.1f%%)\n', diff_alpha_mag, perc_exact )
+    disp('Magnitude of Coexact component:')
+    fprintf( '\t%f (%.1f%%)\n', codiff_beta_mag, perc_coexact )
+    disp('Magnitude of Harmonic component:')
+    fprintf( '\t%f (%.1f%%)\n', gamma_mag, perc_harmonic )
 end

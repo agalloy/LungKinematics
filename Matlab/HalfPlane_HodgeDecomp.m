@@ -21,7 +21,7 @@ T = [0,0,0];
 % Rigid rotation angular velocity (from transformation center)
 R = 1;
 % Scaling velocity (from transformation center)
-S = [1,1,1];
+S = [1,1,0];
 % Divergence impulse
 div_imp_mag = 0;
 % Curl impulse
@@ -29,6 +29,9 @@ curl_imp_mag = 0;
 
 % Use "enhanced" HHD?
 enhance = true;
+
+% Output verification info?
+verify = true;
 
 % Cut off distance
 d = 100;
@@ -97,6 +100,7 @@ vel(NA_far,:) = 0;
 tic
 HHD_options = struct();
 HHD_options.enhance = enhance;
+HHD_options.verify = verify;
 HHDStruct = HHD_GradientRecon( FaceArray, NodeArray, vel, HHD_options );
 %HHDStruct = NaturalHHD( FaceArray, NodeArray, vel );
 toc

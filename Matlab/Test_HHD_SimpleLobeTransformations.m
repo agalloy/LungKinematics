@@ -3,7 +3,6 @@
 %% Initialize Matlab
 clear
 clc
-close all
 addpath('Y:\Documents\BioMOST_Research\TecPlotTools')
 
 %% User Parameters: Data and Plotting
@@ -28,16 +27,16 @@ mesh_pattern = '${SUBJECT}_${SIDE}Lung_Lobes_Mesh_v3.mat';
 
 %% User Parameters: Vector field
 % Transformation center ([0,0,0] is the mean of the lobe's node positions)
-origin = [0,0,0];
+origin = [100,100,100];
 % Scale factors (from transformation center)
-scale_factors = [2,2,2];
+scale_factors = [1,1,1];
 % Rotation Axis (auto-normalized)
 rot_axis = [0,0,1];
 rot_axis = rot_axis / norm( rot_axis );
 % Rigid rotation angular velocity (from transformation center)
-rot_vel = 0;
+rot_vel = 0.01;
 % Uniform translation velocity
-tran_vel = [1,1,1];
+tran_vel = [10000,10000,10000];
 
 % Use "enhanced" HHD?
 enhance = true;

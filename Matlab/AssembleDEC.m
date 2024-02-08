@@ -85,9 +85,9 @@ function out_struct = AssembleDEC( FaceArray, NodeArray )
 %% Assemble area/weight operators
     % Get the cotan at every face corner
     CotanArray = nan( num_faces, 3 );     
-    CotanArray(:,1) = dot(e12,-e31,2) ./ abs(vecnorm(cross(e12,-e31,2),2,2));
-    CotanArray(:,2) = dot(e23,-e12,2) ./ abs(vecnorm(cross(e23,-e12,2),2,2));
-    CotanArray(:,3) = dot(e31,-e23,2) ./ abs(vecnorm(cross(e31,-e23,2),2,2));
+    CotanArray(:,1) = dot(e12,-e31,2) ./ vecnorm(cross(e12,-e31,2),2,2);
+    CotanArray(:,2) = dot(e23,-e12,2) ./ vecnorm(cross(e23,-e12,2),2,2);
+    CotanArray(:,3) = dot(e31,-e23,2) ./ vecnorm(cross(e31,-e23,2),2,2);
 
     % Node areas on each face (and vice versa)
     I = repmat((1:num_faces)',3,1);
@@ -121,7 +121,7 @@ function out_struct = AssembleDEC( FaceArray, NodeArray )
     EdgeVectors = NodeArray(EdgeArray(:,2),:) - NodeArray(EdgeArray(:,1),:);
     EdgeLengths = vecnorm(EdgeVectors,2,2);
     EdgeDir = EdgeVectors ./ EdgeLengths;
-    EdgeRatios = 2*EdgeAreas ./ EdgeLengths.^2; 
+    EdgeRatios = 2*EdgeAreas ./ EdgeLengths.^2;
     
 %% Assemble DEC operators
     % Hodge star for 0-forms (scalar to area)
@@ -152,10 +152,31 @@ function out_struct = AssembleDEC( FaceArray, NodeArray )
     d1 = sparse( I, J, V, num_faces , num_edges );
     clear I J V
 
-%% Assemble node star (neighbor) operators
+%% Assemble neighbor operators
+    % Get all nodes adjacent to the selected (node star)
     NodeStar = EdgeNodes' * EdgeNodes;
     NodeStar = NodeStar .* ~eye( num_nodes );
     
+    % For a given face map a node to the edge acros from it
+    I = repmat((1:num_faces)',3,1);
+    J1 = nan(num_faces,3);
+    J2 = nan(num_faces,3);
+    V1 = nan(num_faces,3);
+    V2 = nan(num_faces,3);
+    for i = 1:num_faces
+        % Get the edges and nodes for the current face and their connectivity
+        f_nodes = find( FaceNodes(i,:) )';
+        f_edges = find( FaceEdges(i,:) )';
+        f_EdgeNodes = EdgeNodes( f_edges, f_nodes );
+        % Pair edges/nodes with the nodes/edges across from them
+        J1(i,:) = f_edges;
+        J2(i,:) = f_nodes;
+        V1(i,:) = ~f_EdgeNodes * f_nodes;
+        V2(i,:) = (~f_EdgeNodes)' * f_edges;
+    end
+    NodeAcrossEdge = sparse( I, J1, V1, num_faces, num_edges );
+    EdgeAcrossNode = sparse( I, J2, V2, num_faces, num_nodes );
+        
 %% Assemble output structure
     out_struct = struct();
     out_struct.EdgeArray = EdgeArray;
@@ -185,5 +206,6 @@ function out_struct = AssembleDEC( FaceArray, NodeArray )
     out_struct.d0 = d0;
     out_struct.d1 = d1;
     out_struct.NodeStar = NodeStar;
-    
+    out_struct.NodeAcrossEdge = NodeAcrossEdge;
+    out_struct.EdgeAcrossNode = EdgeAcrossNode;
 end
