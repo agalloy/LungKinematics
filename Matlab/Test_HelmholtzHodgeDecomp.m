@@ -3,11 +3,10 @@
 clear
 clc
 addpath('Y:\Documents\BioMOST_Research\TecPlotTools')
-close all
 
 %% User Parameters
 % Data loading parameters
-subject = 'H5983';
+subject = 'H5978';
 side = 'Left';
 start_step = 10;
 mesh_dir = 'Y:\Documents\BioMOST_Research\Lung_FE\FEBio\Meshes_v3\';
@@ -15,6 +14,10 @@ disp_dir = 'Y:\Documents\BioMOST_Research\Lung_FE\FEBio\FEBio_Runs\TLCtoFRC_Pena
 
 % Plotting parameters
 plot_invert = true;
+
+% HHD options
+options.enhance = true;
+options.verify = true;
 
 % Tecplot parameters
 tec_dir = 'Y:\Documents\BioMOST_Research\Lung_Analysis\Tecplot\HodgeDecomposition';
@@ -61,8 +64,6 @@ global2local(np_mov) = 1:size(np_mov,1);
 FA_fissure = global2local(FA_fissure);
 
 % Helmholtz-Hodge Decomposition
-options.enhance = true;
-options.verify = true;
 tic
 HHDStruct = HHD_GradientRecon( FA_fissure, NA_fissure, ut_inc, options );
 toc
@@ -158,8 +159,8 @@ toc
 %% Extra figure
 figure()
 hold on
-title('Exact vector field')
-PlotTriSurfStreamline( FA_fissure, NA_fissure, diff_alpha, options )
+title('Original vector field')
+PlotTriSurfStreamline( FA_fissure, NA_fissure, omega, options )
 daspect([1 1 1])
 if plot_invert
 set(gca, 'Zdir', 'reverse')

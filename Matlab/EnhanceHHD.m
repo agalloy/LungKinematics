@@ -73,7 +73,7 @@ function [ alpha_en, diff_alpha_en, beta_en, codiff_beta_en ] = EnhanceHHD( Face
     % Enhance alpha
     k1 = ((omega' * hs1 * diff_m2) - (diff_alpha' * hs1 * diff_m2)) /...
         ((diff_m2' * hs1 * diff_m2) - (diff_m2_alpha' * hs1 * diff_m2));
-    if isnan(k1)
+    if isnan(k1) || isinf(k1)
         alpha_en = alpha;
         diff_alpha_en = diff_alpha;
     else
@@ -102,7 +102,7 @@ function [ alpha_en, diff_alpha_en, beta_en, codiff_beta_en ] = EnhanceHHD( Face
     % Enhance beta
     k2 = ((omega' * hs1 * codiff_m2) - (codiff_beta' * hs1 * codiff_m2)) /...
         ((codiff_m2' * hs1 * codiff_m2) - (codiff_m2_beta' * hs1 * codiff_m2));
-    if isnan(k2)
+    if isnan(k2) || isinf(k2)
         beta_en = beta;
         codiff_beta_en = codiff_beta;
     else
@@ -122,10 +122,13 @@ function [ alpha_en, diff_alpha_en, beta_en, codiff_beta_en ] = EnhanceHHD( Face
     perp_field = codiff_m2 - codiff_m2_beta;
     circ_perp_field = sum( b_orient.*perp_field(b_edges) );
     curl_perp_field = sum( d1*perp_field );
-    disp( [circ_omega, circ_codiff_beta, circ_codiff_beta_en, circ_codiff_m2, circ_perp_field])
+    disp( 'Curl of intermediate vector fields (first three should be equal, last should be zero):')
     disp( [curl_omega, curl_codiff_beta, curl_codiff_beta_en, curl_codiff_m2, curl_perp_field])
+    disp( 'Circulation around boundary of vector fields (should be euqal to above):')
+    disp( [circ_omega, circ_codiff_beta, circ_codiff_beta_en, circ_codiff_m2, circ_perp_field])
         
 %% Verification
+disp('Enhancement Weights (exact then coexact):')
 disp([k1,k2])
 
 edge_alpha = 0;

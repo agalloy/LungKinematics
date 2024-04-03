@@ -2,26 +2,19 @@
 A set of tools and analysis pipelines for lung and lobar kinematics.
 
 CURRENT TASK:
-1) Develop a "gradient enhanced" HHD where the component of the vector field aligned with the (co)gradient of 
-   square magnitude is reintroduced to the (co)exact component.
+1) Implement the Galerkin Hodge Star (which gives the inner product of Whitney basis 1-forms) from
+   de Goes et al. "Discrete 2-Tensor Fields..."
 
 SUB TASKS:
-- "Gradient enhanced" HHD [ ]
-  - Perform normal HHD [ ]
-  - Exact component [ ]
-    - Compute the magnitude of the 1-form at each node [ ]
-    - Take the gradient of this scalar field to get a new 1-form [ ]
-    - Add back the components of the input aligned with the new 1-form to the exact component [ ]
-  - Coexact component [ ]
-    - Compute the magnitude of the 1-form at each face [ ]
-    - Take the gradient of this scalar field to get a new 1-form [ ]
-    - Add back the components of the input aligned with the new 1-form to the coexact component [ ]
-  - Harmonic component is the remainder [ ]
-  - Perform usual verification checks to ensure orthogonality and whatnot [ ]
-  - Analyze results [ ]
+- Implement the Galerkin Hodge Star [X]
+  - Implement an option to toggle between it and the diagonal Hodge star [ ] 
+- Verify that it has the same Laplace operator as the diagonal Hodge star [X]
+- Verify orthogonality between HHD components [ ]
+  - In the non-enhanced HHD [X]
+  - In the enhanced HHD [ ]
 
 STRUCTURAL CHANGES:
-- HHD now takes in an optional options structure
+- 
 
 What's required to make this more "independent"?
 - Address External Dependencies
