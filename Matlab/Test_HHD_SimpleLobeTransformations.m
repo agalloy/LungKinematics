@@ -27,16 +27,16 @@ mesh_pattern = '${SUBJECT}_${SIDE}Lung_Lobes_Mesh_v3.mat';
 
 %% User Parameters: Vector field
 % Transformation center ([0,0,0] is the mean of the lobe's node positions)
-origin = [100,100,100];
+origin = [0,0,0];
 % Scale factors (from transformation center)
 scale_factors = [1,1,1];
 % Rotation Axis (auto-normalized)
 rot_axis = [0,0,1];
 rot_axis = rot_axis / norm( rot_axis );
 % Rigid rotation angular velocity (from transformation center)
-rot_vel = 0.01;
+rot_vel = 1;
 % Uniform translation velocity
-tran_vel = [10000,10000,10000];
+tran_vel = [0,0,0];
 
 % Use "enhanced" HHD?
 enhance = true;
@@ -92,18 +92,19 @@ X_fissure = X;
 % Perform HHD with desired options
 HHD_options = struct();
 HHD_options.enhance = enhance;
-HHDStruct = HHD_GradientRecon( FA_fissure_local, NA_fissure, X_fissure, HHD_options );
+HHD_struct = HHD_GradientRecon( FA_fissure_local, NA_fissure, X_fissure, HHD_options );
 % Read results
-alpha = HHDStruct.alpha;
-beta_n = HHDStruct.beta_n;
-diff_alpha = HHDStruct.diff_alpha;
-codiff_beta = HHDStruct.codiff_beta;
-gamma = HHDStruct.gamma;
+alpha = HHD_struct.alpha;
+beta_n = HHD_struct.beta_n;
+diff_alpha = HHD_struct.diff_alpha;
+codiff_beta = HHD_struct.codiff_beta;
+gamma = HHD_struct.gamma;
 
 %% Plots
 options = struct();
 options.spacing = 15;
 options.LineWidth = 1.5;
+options.plot_invert = plot_invert;
 
 if flatten
     NA_stream = NA_fissure(:,[1,2]);
@@ -135,73 +136,4 @@ set(gca, 'Ydir', 'reverse')
 end
 hold off
 
-figure()   
-sp_array(1) = subplot(2,3,1);
-hold on
-title('Potential')
-p = patch('Faces',FA_fissure_local,'Vertices',NA_fissure,'FaceColor','interp','CData',alpha);
-daspect([1 1 1])
-if plot_invert
-set(gca, 'Zdir', 'reverse')
-set(gca, 'Ydir', 'reverse')
-end
-colorbar()
-hold off
-
-sp_array(2) = subplot(2,3,2);
-hold on
-title('Original vector field')
-PlotTriSurfStreamline( FA_fissure_local, NA_stream, X_stream, options )
-daspect([1 1 1])
-if plot_invert
-set(gca, 'Zdir', 'reverse')
-set(gca, 'Ydir', 'reverse')
-end
-hold off
-
-sp_array(3) = subplot(2,3,3);
-hold on
-title('Copotential')
-p = patch('Faces',FA_fissure_local,'Vertices',NA_fissure,'FaceColor','interp','CData',beta_n);
-daspect([1 1 1])
-if plot_invert
-set(gca, 'Zdir', 'reverse')
-set(gca, 'Ydir', 'reverse')
-end
-colorbar()
-hold off
-
-sp_array(4) = subplot(2,3,4);
-hold on
-title('Exact vector field component (Irrotational)')
-PlotTriSurfStreamline( FA_fissure_local, NA_stream, diff_alpha_stream, options )
-daspect([1 1 1])
-if plot_invert
-set(gca, 'Zdir', 'reverse')
-set(gca, 'Ydir', 'reverse')
-end
-hold off
-
-sp_array(5) = subplot(2,3,5);
-hold on
-title('Harmonic vector field component (Incompressible and Irrotational)')
-PlotTriSurfStreamline( FA_fissure_local, NA_stream, gamma_stream, options )
-daspect([1 1 1])
-if plot_invert
-set(gca, 'Zdir', 'reverse')
-set(gca, 'Ydir', 'reverse')
-end
-hold off
-
-sp_array(6) = subplot(2,3,6);
-hold on
-title('Coexact vector field component (Incompressible)')
-PlotTriSurfStreamline( FA_fissure_local, NA_stream, codiff_beta_stream, options )
-daspect([1 1 1])
-if plot_invert
-set(gca, 'Zdir', 'reverse')
-set(gca, 'Ydir', 'reverse')
-end
-hold off
-
-hlink = linkprop( sp_array, {'CameraPosition','CameraUpVector'} );
+hlink = ViewHHDComponents( FA_fissure_local, NA_stream, HHD_struct, options );

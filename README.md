@@ -2,16 +2,16 @@
 A set of tools and analysis pipelines for lung and lobar kinematics.
 
 CURRENT TASK:
-1) Implement the Galerkin Hodge Star (which gives the inner product of Whitney basis 1-forms) from
-   de Goes et al. "Discrete 2-Tensor Fields..."
+Implement a "View HHD Components" function to make some of the analyses more compact.
+
 
 SUB TASKS:
-- Implement the Galerkin Hodge Star [X]
-  - Implement an option to toggle between it and the diagonal Hodge star [ ] 
-- Verify that it has the same Laplace operator as the diagonal Hodge star [X]
-- Verify orthogonality between HHD components [ ]
-  - In the non-enhanced HHD [X]
-  - In the enhanced HHD [ ]
+- Implement the ViewHHDComponents.m
+  - Code the function [X]
+  - Incoproate into analysis functions [X]
+    - Halfplane_HodgeDecomp.m [X]
+    - Test_HHD_SimpleLobeTransformations [X]
+    - Test_HelmholtzHodgeDecomp [X]
 
 STRUCTURAL CHANGES:
 - 

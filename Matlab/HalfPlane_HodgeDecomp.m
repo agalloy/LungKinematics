@@ -17,11 +17,11 @@ rng(37484)
 % Transformation center
 O = [0,0,0];
 % Uniform translation velocity
-T = [0,0,0];
+T = [1,0,0];
 % Rigid rotation angular velocity (from transformation center)
 R = 1;
 % Scaling velocity (from transformation center)
-S = [1,1,0];
+S = [0,0,0];
 % Divergence impulse
 div_imp_mag = 0;
 % Curl impulse
@@ -101,18 +101,17 @@ tic
 HHD_options = struct();
 HHD_options.enhance = enhance;
 HHD_options.verify = verify;
-HHDStruct = HHD_GradientRecon( FaceArray, NodeArray, vel, HHD_options );
-%HHDStruct = NaturalHHD( FaceArray, NodeArray, vel );
+HHD_struct = HHD_GradientRecon( FaceArray, NodeArray, vel, HHD_options );
 toc
 
 % Load results
-alpha = HHDStruct.alpha;
-beta = HHDStruct.beta;
-beta_n = HHDStruct.beta_n;
-omega = HHDStruct.omega;
-diff_alpha = HHDStruct.diff_alpha;
-codiff_beta = HHDStruct.codiff_beta;
-gamma = HHDStruct.gamma;
+alpha = HHD_struct.alpha;
+beta = HHD_struct.beta;
+beta_n = HHD_struct.beta_n;
+omega = HHD_struct.omega;
+diff_alpha = HHD_struct.diff_alpha;
+codiff_beta = HHD_struct.codiff_beta;
+gamma = HHD_struct.gamma;
 % Function handle to get vector fields in MeshGrid form
 VG = @(n) reshape(n,num_seg(1)+1,num_seg(1)+1);
 
@@ -134,37 +133,7 @@ options.seeds = seed_nodes;
 % daspect([1 1 1])
 
 %% Visualize Helmholtz-Hodge Decomposition
-figure()
-sp_array(1) = subplot(2,3,1);
-title('Potential')
-patch('Faces',FaceArray,'Vertices',NodeArray,'FaceColor','interp','CData',alpha,...
-      'EdgeAlpha',edge_alpha);
-daspect([1 1 1])
-colorbar()
-    
-sp_array(2) = subplot(2,3,2);
-title('Original Vector Field')
-PlotTriSurfStreamline( FaceArray, NodeArray(:,[1,2]), omega(:,[1,2]), options )
-
-sp_array(3) = subplot(2,3,3);
-title('Copotential')
-patch('Faces',FaceArray,'Vertices',NodeArray,'FaceColor','interp','CData',beta_n,...
-      'EdgeAlpha',edge_alpha);
-daspect([1 1 1])
-colorbar()
-
-sp_array(4) = subplot(2,3,4);
-title('Exact vector field component (Irrotational)')
-PlotTriSurfStreamline( FaceArray, NodeArray(:,[1,2]), diff_alpha(:,[1,2]), options )
-
-sp_array(5) = subplot(2,3,5);
-title('Harmonic vector field component (Incompressible and Irrotational)')
-PlotTriSurfStreamline( FaceArray, NodeArray(:,[1,2]), gamma(:,[1,2]), options )
-
-sp_array(6) = subplot(2,3,6);
-title('Coexact vector field component (Incompressible)')
-PlotTriSurfStreamline( FaceArray, NodeArray(:,[1,2]), codiff_beta(:,[1,2]), options )
-
+hlink = ViewHHDComponents( FaceArray, NodeArray(:,[1,2]), HHD_struct, options );
 
 %% Vector field with potential
 % figure()
