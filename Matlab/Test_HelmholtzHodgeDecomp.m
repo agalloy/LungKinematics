@@ -2,23 +2,26 @@
 %% Initialize Matlab
 clear
 clc
-close all
 addpath('Y:\Documents\BioMOST_Research\TecPlotTools')
 
 %% User Parameters
 % Data loading parameters
-subject = 'PFS018';
+subject = 'H5972';
 side = 'Left';
-start_step = 5;
+start_step = 10;
 mesh_dir = 'Y:\Documents\BioMOST_Research\Lung_FE\FEBio\Meshes_v3\';
-disp_dir = 'Y:\Documents\BioMOST_Research\Lung_FE\FEBio\FEBio_Runs\TidalBreathing\';
+disp_dir = 'Y:\Documents\BioMOST_Research\Lung_FE\FEBio\FEBio_Runs\TLCtoFRC_PenaltyStep\';
 
 % Plotting parameters
-plot_invert = false;
+plot_invert = true;
+
+% HHD options
+options.enhance = true;
+options.verify = true;
 
 % Tecplot parameters
 tec_dir = 'Y:\Documents\BioMOST_Research\Lung_Analysis\Tecplot\HodgeDecomposition';
-tec_pattern = '${SUBJECT}_${SIDE}Lung_t${TIME}';
+tec_pattern = '${SUBJECT}_${SIDE}Lung_t${TIME}_Enhanced';
 save_tec = false;
 
 %% Get the incremental sliding displacement field
@@ -62,102 +65,34 @@ FA_fissure = global2local(FA_fissure);
 
 % Helmholtz-Hodge Decomposition
 tic
-HHDStruct = HodgeDecompV2( FA_fissure, NA_fissure, ut_inc );
+HHD_struct = HHD_GradientRecon( FA_fissure, NA_fissure, ut_inc, options );
 toc
 
-alpha = HHDStruct.alpha;
-beta = HHDStruct.beta;
-beta_n = HHDStruct.beta_n;
-omega = HHDStruct.omega;
-diff_alpha = HHDStruct.diff_alpha;
-codiff_beta = HHDStruct.codiff_beta;
-gamma = HHDStruct.gamma;
+alpha = HHD_struct.alpha;
+beta = HHD_struct.beta;
+beta_n = HHD_struct.beta_n;
+omega = HHD_struct.omega;
+diff_alpha = HHD_struct.diff_alpha;
+codiff_beta = HHD_struct.codiff_beta;
+gamma = HHD_struct.gamma;
 
 %% Figures
 options = struct();
 options.spacing = 15;
 %options.num_steps = 100;
 options.LineWidth = 1.5;
+options.plot_invert = plot_invert;
 tic
 
-figure()   
-sp_array(1) = subplot(2,3,1);
-hold on
-title('Potential')
-p = patch('Faces',FA_fissure,'Vertices',NA_fissure,'FaceColor','interp','CData',alpha);
-daspect([1 1 1])
-if plot_invert
-set(gca, 'Zdir', 'reverse')
-set(gca, 'Ydir', 'reverse')
-end
-colorbar()
-hold off
-
-sp_array(2) = subplot(2,3,2);
-hold on
-title('Original vector field')
-PlotTriSurfStreamline( FA_fissure, NA_fissure, omega, options )
-daspect([1 1 1])
-if plot_invert
-set(gca, 'Zdir', 'reverse')
-set(gca, 'Ydir', 'reverse')
-end
-hold off
-
-sp_array(3) = subplot(2,3,3);
-hold on
-title('Copotential')
-p = patch('Faces',FA_fissure,'Vertices',NA_fissure,'FaceColor','interp','CData',beta_n);
-daspect([1 1 1])
-if plot_invert
-set(gca, 'Zdir', 'reverse')
-set(gca, 'Ydir', 'reverse')
-end
-colorbar()
-hold off
-
-sp_array(4) = subplot(2,3,4);
-hold on
-title('Exact vector field component (Irrotational)')
-PlotTriSurfStreamline( FA_fissure, NA_fissure, diff_alpha, options )
-daspect([1 1 1])
-if plot_invert
-set(gca, 'Zdir', 'reverse')
-set(gca, 'Ydir', 'reverse')
-end
-hold off
-
-sp_array(5) = subplot(2,3,5);
-hold on
-title('Harmonic vector field component (Incompressible and Irrotational)')
-PlotTriSurfStreamline( FA_fissure, NA_fissure, gamma, options )
-daspect([1 1 1])
-if plot_invert
-set(gca, 'Zdir', 'reverse')
-set(gca, 'Ydir', 'reverse')
-end
-hold off
-
-sp_array(6) = subplot(2,3,6);
-hold on
-title('Coexact vector field component (Incompressible)')
-PlotTriSurfStreamline( FA_fissure, NA_fissure, codiff_beta, options )
-daspect([1 1 1])
-if plot_invert
-set(gca, 'Zdir', 'reverse')
-set(gca, 'Ydir', 'reverse')
-end
-hold off
-
-hlink = linkprop( sp_array, {'CameraPosition','CameraUpVector'} );
+hlink = ViewHHDComponents( FA_fissure, NA_fissure, HHD_struct, options );
 
 toc
 
 %% Extra figure
 figure()
 hold on
-title('Exact vector field')
-PlotTriSurfStreamline( FA_fissure, NA_fissure, diff_alpha, options )
+title('Original vector field')
+PlotTriSurfStreamline( FA_fissure, NA_fissure, omega, options )
 daspect([1 1 1])
 if plot_invert
 set(gca, 'Zdir', 'reverse')

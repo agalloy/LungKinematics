@@ -7,12 +7,20 @@ function n_resamp = GridSample(Xq,spacing)
     
     % Create a set of grid points within these bounds with the given
     % spacing
-    Xg_x = bbox_min(1): spacing: bbox_max(1);
-    Xg_y = bbox_min(2): spacing: bbox_max(2);
-    Xg_z = bbox_min(3): spacing: bbox_max(3);
-    [Xg_x, Xg_y, Xg_z] = meshgrid(Xg_x,Xg_y,Xg_z);
-    Xg = [ reshape(Xg_x,[],1), reshape(Xg_y,[],1), reshape(Xg_z,[],1)];
-    
+    if size(Xq,2) == 3
+        Xg_x = bbox_min(1): spacing: bbox_max(1);
+        Xg_y = bbox_min(2): spacing: bbox_max(2);
+        Xg_z = bbox_min(3): spacing: bbox_max(3);
+        [Xg_x, Xg_y, Xg_z] = meshgrid(Xg_x,Xg_y,Xg_z);
+        Xg = [ reshape(Xg_x,[],1), reshape(Xg_y,[],1), reshape(Xg_z,[],1)];
+    elseif size(Xq,2) == 2
+        Xg_x = bbox_min(1): spacing: bbox_max(1);
+        Xg_y = bbox_min(2): spacing: bbox_max(2);
+        [Xg_x, Xg_y] = meshgrid(Xg_x,Xg_y);
+        Xg = [ reshape(Xg_x,[],1), reshape(Xg_y,[],1) ];
+    else
+        disp('Invalid number of dimensions!')
+    end
     % Get the closest query point to each grid point
     [k, dist] = dsearchn(Xq,Xg);
     

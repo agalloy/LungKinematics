@@ -15,18 +15,14 @@ function PlotTriSurfStreamline( FaceArray, NodeArray, X, options )
         seeds = options.seeds;
     elseif isfield(options,'spacing')
         spacing = options.spacing;
-        if num_dim == 3
-            seeds = GridSample( NodeArray, spacing );
-        else
-            error('Spacing option is only supported for 3D surfaces')
-        end
+        seeds = GridSample( NodeArray, spacing );
     else
         if num_dim == 3
             spacing = 6;
             seeds = GridSample( NodeArray, spacing );
         end
         if num_dim == 2
-            seeds = 1:size(NodeArray,1);
+            seeds = (1:10:size(NodeArray,1))';
         end
     end
     if isfield(options,'num_steps')

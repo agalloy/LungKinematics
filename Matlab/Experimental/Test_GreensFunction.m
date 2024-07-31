@@ -5,14 +5,14 @@ clc
 
 %% User Parameters
 % Data loading parameters
-subject = 'PFS018';
+subject = 'H5972';
 side = 'Left';
 start_step = 5;
 mesh_dir = 'Y:\Documents\BioMOST_Research\Lung_FE\FEBio\Meshes_v3\';
-disp_dir = 'Y:\Documents\BioMOST_Research\Lung_FE\FEBio\FEBio_Runs\TidalBreathing\';
+disp_dir = 'Y:\Documents\BioMOST_Research\Lung_FE\FEBio\FEBio_Runs\TLCtoFRC_PenaltyStep\';
 
 % Plotting parameters
-plot_invert = false;
+plot_invert = true;
 
 % Query node
 Nq = 155;
