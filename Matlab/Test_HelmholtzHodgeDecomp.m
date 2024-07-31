@@ -6,7 +6,7 @@ addpath('Y:\Documents\BioMOST_Research\TecPlotTools')
 
 %% User Parameters
 % Data loading parameters
-subject = 'H5983';
+subject = 'H5972';
 side = 'Left';
 start_step = 10;
 mesh_dir = 'Y:\Documents\BioMOST_Research\Lung_FE\FEBio\Meshes_v3\';
@@ -99,9 +99,6 @@ set(gca, 'Zdir', 'reverse')
 set(gca, 'Ydir', 'reverse')
 end
 hold off
-
-%% Compare Vector Field Reconstructions
-% comp_link = CompareVectorReconstructions( FA_fissure, NA_fissure, ut_inc );
 
 %% Save to Tecplot
 if save_tec
