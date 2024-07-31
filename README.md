@@ -1,26 +1,9 @@
 # LungKinematics
 A set of tools and analysis pipelines for lung and lobar kinematics.
 
-CURRENT TASK:
-Implement a "View HHD Components" function to make some of the analyses more compact.
+Current analysis include:
+- Mapping sliding trajectories of lung simulations (Test_SlidingTrajectory.m)
+- Analyzing the distortion inside the lung lobes during a breathing maneuver (AnalyzeADI.m)
+- Using Helmholtz-Hodge Decomposition to quantitatively characterize sliding motion in the lungs (Test_HelmholtzHodgeDecomp.m)
 
-
-SUB TASKS:
-- Implement the ViewHHDComponents.m
-  - Code the function [X]
-  - Incoproate into analysis functions [X]
-    - Halfplane_HodgeDecomp.m [X]
-    - Test_HHD_SimpleLobeTransformations [X]
-    - Test_HelmholtzHodgeDecomp [X]
-
-STRUCTURAL CHANGES:
-- 
-
-What's required to make this more "independent"?
-- Address External Dependencies
-	- TecPlot Tools folder
-	- Loading data
-
-- Add missing analyses
-	- FE simulation deformation analyses
-	- Sliding trajectory analysis
+All work done as part of the Raghavan BioMOST lab. Check us out at: https://biomost.engineering.uiowa.edu/
