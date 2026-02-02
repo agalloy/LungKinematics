@@ -4,8 +4,8 @@ clc
 
 %% Data parameters
 % Important directories
-disp_dir = 'Y:\Documents\BioMOST_Research\Lung_FE\FEBio\FEBio_Runs\TLCtoFRC_PenaltyStep';
-mesh_dir = 'Y:\Documents\BioMOST_Research\Lung_FE\FEBio\Meshes_v3';
+disp_dir = 'Z:\AdamGalloy\Lung FE\FEBio_Runs\TLCtoFRC_PenaltyStep';
+mesh_dir = 'Z:\AdamGalloy\Lung FE\FEBio_Meshes';
 
 % Important file patterns
 mesh_pattern = '${SUBJECT}_${SIDE}Lung_Lobes_Mesh_v3.mat';
@@ -163,6 +163,7 @@ for i = 1:num_subjects
         vol = vol/1000; % convert vol to mL
         ADI = sqrt( ((lambda(:,1)-lambda(:,2))./lambda(:,2)).^2 + ((lambda(:,2)-lambda(:,3))./lambda(:,3)).^2 );
         J = lambda(:,1) .* lambda(:,2) .* lambda(:,3);
+        ADI = 1 ./ J;
         
         % Get mean ADI in whole lung and each lobe
         eID_solid = eID(eID~=1);
