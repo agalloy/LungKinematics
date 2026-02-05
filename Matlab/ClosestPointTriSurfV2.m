@@ -95,9 +95,11 @@ function outStruct = ClosestPointTriSurfV2( FaceArray, NodeArray, Xq )
         % If the projected point is outside of the face, then the closest
         % point is one of the edge points above
         edge_array = [ dcp12(~intri), dcp23(~intri), dcp31(~intri)];
-        edgep_array = [ cp12(~intri,:), cp23(~intri,:), cp31(~intri,:)];
+        edgep_array = [ cp12(~intri,:); cp23(~intri,:); cp31(~intri,:)];
         [dist_temp(~intri), edgeind] = min(edge_array,[],2);
-        Xcp_temp(~intri,:) = edgep_array( :, edgeind*3-2 : edgeind*3);
+        edgep_index = (1:size(edge_array,1))' + size(edge_array,1).*(edgeind-1);
+
+        Xcp_temp(~intri,:) = edgep_array( edgep_index, : );
         
         % If this face is the closest point detected for a query node so far
         % save this distance.

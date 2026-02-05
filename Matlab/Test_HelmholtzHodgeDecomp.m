@@ -2,15 +2,15 @@
 %% Initialize Matlab
 clear
 clc
-addpath('Y:\Documents\BioMOST_Research\TecPlotTools')
+addpath('C:\Users\admth\Documents\L_Drive_Backup\Documents\BioMOST_Research\TecPlotTools')
 
 %% User Parameters
 % Data loading parameters
-subject = 'H5972';
+subject = 'H6019';
 side = 'Left';
 start_step = 10;
-mesh_dir = 'Y:\Documents\BioMOST_Research\Lung_FE\FEBio\Meshes_v3\';
-disp_dir = 'Y:\Documents\BioMOST_Research\Lung_FE\FEBio\FEBio_Runs\TLCtoFRC_PenaltyStep\';
+mesh_dir = 'C:\Users\admth\Documents\L_Drive_Backup\Documents\BioMOST_Research\Lung_FE\FEBio\Meshes_v3\';
+disp_dir = 'C:\Users\admth\Documents\L_Drive_Backup\Documents\BioMOST_Research\Lung_FE\FEBio\FEBio_Runs\TLCtoFRC_PenaltyStep\';
 
 % Plotting parameters
 plot_invert = true;
@@ -20,7 +20,7 @@ options.enhance = true;
 options.verify = true;
 
 % Tecplot parameters
-tec_dir = 'Y:\Documents\BioMOST_Research\Lung_Analysis\Tecplot\HodgeDecomposition';
+tec_dir = 'C:\Users\admth\Documents\L_Drive_Backup\Documents\BioMOST_Research\Lung_Analysis\Tecplot\HodgeDecomposition';
 tec_pattern = '${SUBJECT}_${SIDE}Lung_t${TIME}_Enhanced';
 save_tec = false;
 
@@ -91,13 +91,14 @@ toc
 %% Extra figure
 figure()
 hold on
-title('Original vector field')
+%title('Original vector field')
 PlotTriSurfStreamline( FA_fissure, NA_fissure, omega, options )
 daspect([1 1 1])
 if plot_invert
 set(gca, 'Zdir', 'reverse')
 set(gca, 'Ydir', 'reverse')
 end
+view(10,45)
 hold off
 
 %% Save to Tecplot
